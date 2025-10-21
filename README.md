@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scientific Calculator</title>
+    <title>Minimal Scientific Calculator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
         
         body {
@@ -17,42 +17,42 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: #f5f5f5;
             padding: 20px;
         }
         
         .calculator {
-            background-color: #1e1e2e;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            width: 320px;
             overflow: hidden;
             padding: 20px;
         }
         
         .display {
-            background-color: #2d3047;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
             text-align: right;
-            color: white;
-            min-height: 120px;
+            color: #333;
+            min-height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
         
         .previous-operand {
-            font-size: 1.2rem;
-            color: #a0a0a0;
-            min-height: 1.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            min-height: 1.2rem;
             word-wrap: break-word;
             word-break: break-all;
         }
         
         .current-operand {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: 500;
             word-wrap: break-word;
             word-break: break-all;
@@ -61,92 +61,76 @@
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            grid-gap: 12px;
+            grid-gap: 8px;
         }
         
         button {
             border: none;
-            border-radius: 10px;
-            padding: 15px 0;
-            font-size: 1.2rem;
-            font-weight: 500;
+            border-radius: 6px;
+            padding: 12px 0;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: white;
+            transition: all 0.1s ease;
+            color: #333;
+            background-color: #f0f0f0;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background-color: #e0e0e0;
         }
         
         button:active {
-            transform: translateY(0);
-        }
-        
-        .number {
-            background-color: #3a3e5b;
-        }
-        
-        .number:hover {
-            background-color: #4a5078;
+            transform: scale(0.97);
         }
         
         .operation {
-            background-color: #ff9500;
+            background-color: #e9ecef;
         }
         
         .operation:hover {
-            background-color: #ffaa33;
-        }
-        
-        .scientific {
-            background-color: #585a7c;
-        }
-        
-        .scientific:hover {
-            background-color: #6c6f9c;
+            background-color: #dee2e6;
         }
         
         .equals {
-            background-color: #ff2d55;
-            grid-column: span 2;
+            background-color: #007bff;
+            color: white;
         }
         
         .equals:hover {
-            background-color: #ff4d6d;
+            background-color: #0069d9;
+        }
+        
+        .scientific {
+            background-color: #f8f9fa;
+            font-size: 0.85rem;
+        }
+        
+        .scientific:hover {
+            background-color: #e9ecef;
         }
         
         .clear {
-            background-color: #585a7c;
+            background-color: #f8f9fa;
         }
         
         .clear:hover {
-            background-color: #6c6f9c;
+            background-color: #e9ecef;
         }
         
         .zero {
             grid-column: span 2;
         }
         
-        .memory {
-            background-color: #2d3047;
-            font-size: 1rem;
-        }
-        
-        .memory:hover {
-            background-color: #3a3e5b;
-        }
-        
         .mode-toggle {
-            background-color: #2d3047;
-            font-size: 1rem;
-            margin-top: 15px;
+            background-color: #f8f9fa;
+            font-size: 0.8rem;
+            margin-top: 10px;
             width: 100%;
+            padding: 8px;
         }
         
         .mode-toggle:hover {
-            background-color: #3a3e5b;
+            background-color: #e9ecef;
         }
         
         @media (max-width: 480px) {
@@ -156,12 +140,12 @@
             }
             
             button {
-                padding: 12px 0;
-                font-size: 1rem;
+                padding: 10px 0;
+                font-size: 0.9rem;
             }
             
             .current-operand {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
         }
     </style>
@@ -173,47 +157,41 @@
             <div class="current-operand">0</div>
         </div>
         <div class="buttons-grid">
-            <button class="clear scientific" data-action="clear">C</button>
-            <button class="clear scientific" data-action="clear-entry">CE</button>
+            <button class="clear" data-action="clear">C</button>
+            <button class="clear" data-action="clear-entry">CE</button>
             <button class="scientific" data-action="backspace">⌫</button>
             <button class="scientific" data-operation="%">%</button>
-            <button class="scientific" data-operation="1/x">1/x</button>
+            <button class="scientific" data-operation="√">√</button>
             
             <button class="scientific" data-operation="x²">x²</button>
-            <button class="scientific" data-operation="√">√</button>
+            <button class="scientific" data-operation="1/x">1/x</button>
             <button class="scientific" data-operation="x^y">x^y</button>
             <button class="scientific" data-operation="log">log</button>
-            <button class="scientific" data-operation="ln">ln</button>
+            <button class="operation" data-operation="÷">÷</button>
             
             <button class="scientific" data-operation="sin">sin</button>
             <button class="scientific" data-operation="cos">cos</button>
             <button class="scientific" data-operation="tan">tan</button>
+            <button class="number" data-number="7">7</button>
+            <button class="operation" data-operation="×">×</button>
+            
             <button class="scientific" data-operation="π">π</button>
             <button class="scientific" data-operation="e">e</button>
-            
-            <button class="memory" data-action="mc">MC</button>
-            <button class="memory" data-action="mr">MR</button>
-            <button class="memory" data-action="m-plus">M+</button>
-            <button class="memory" data-action="m-minus">M-</button>
-            <button class="operation" data-operation="÷">÷</button>
-            
-            <button class="number" data-number="7">7</button>
+            <button class="scientific" data-operation="±">±</button>
             <button class="number" data-number="8">8</button>
             <button class="number" data-number="9">9</button>
-            <button class="operation" data-operation="×">×</button>
-            <button class="scientific" data-operation="10^x">10^x</button>
             
+            <button class="scientific" data-operation="ln">ln</button>
+            <button class="scientific" data-operation="10^x">10^x</button>
+            <button class="operation" data-operation="-">-</button>
             <button class="number" data-number="4">4</button>
             <button class="number" data-number="5">5</button>
-            <button class="number" data-number="6">6</button>
-            <button class="operation" data-operation="-">-</button>
-            <button class="scientific" data-operation="x!">x!</button>
             
+            <button class="number" data-number="6">6</button>
+            <button class="operation" data-operation="+">+</button>
             <button class="number" data-number="1">1</button>
             <button class="number" data-number="2">2</button>
             <button class="number" data-number="3">3</button>
-            <button class="operation" data-operation="+">+</button>
-            <button class="scientific" data-operation="±">±</button>
             
             <button class="number zero" data-number="0">0</button>
             <button class="number" data-number=".">.</button>
@@ -228,7 +206,6 @@
                 this.previousOperandElement = previousOperandElement;
                 this.currentOperandElement = currentOperandElement;
                 this.clear();
-                this.memory = 0;
                 this.isScientificMode = true;
             }
             
@@ -353,9 +330,6 @@
                     case 'e':
                         this.currentOperand = Math.E.toString();
                         break;
-                    case 'x!':
-                        this.currentOperand = this.factorial(current).toString();
-                        break;
                     case '%':
                         this.currentOperand = (current / 100).toString();
                         break;
@@ -364,36 +338,6 @@
                 }
                 
                 this.shouldResetScreen = true;
-            }
-            
-            factorial(n) {
-                if (n < 0) return NaN;
-                if (n === 0 || n === 1) return 1;
-                
-                let result = 1;
-                for (let i = 2; i <= n; i++) {
-                    result *= i;
-                }
-                return result;
-            }
-            
-            memoryOperation(action) {
-                const current = parseFloat(this.currentOperand);
-                
-                switch (action) {
-                    case 'mc':
-                        this.memory = 0;
-                        break;
-                    case 'mr':
-                        this.currentOperand = this.memory.toString();
-                        break;
-                    case 'm-plus':
-                        this.memory += current;
-                        break;
-                    case 'm-minus':
-                        this.memory -= current;
-                        break;
-                }
             }
             
             toggleMode() {
@@ -442,7 +386,7 @@
             });
         });
         
-        // Memory buttons
+        // Action buttons
         document.querySelectorAll('[data-action]').forEach(button => {
             button.addEventListener('click', () => {
                 const action = button.getAttribute('data-action');
@@ -455,8 +399,6 @@
                     calculator.clearEntry();
                 } else if (action === 'backspace') {
                     calculator.delete();
-                } else if (['mc', 'mr', 'm-plus', 'm-minus'].includes(action)) {
-                    calculator.memoryOperation(action);
                 }
                 
                 calculator.updateDisplay();
@@ -467,7 +409,7 @@
         const modeToggle = document.getElementById('mode-toggle');
         modeToggle.addEventListener('click', () => {
             const isScientific = calculator.toggleMode();
-            const scientificButtons = document.querySelectorAll('.scientific, .memory');
+            const scientificButtons = document.querySelectorAll('.scientific');
             
             if (isScientific) {
                 modeToggle.innerText = 'Switch to Basic Mode';
