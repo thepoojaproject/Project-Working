@@ -1,591 +1,486 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awaking Alarm Clock</title>
+    <title>Scientific Calculator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-       
+        
         body {
-            background: #bebebe;
-            color: #333;
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             padding: 20px;
         }
-       
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            padding: 30px;
-            position: relative;
+        
+        .calculator {
+            background-color: #1e1e2e;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 400px;
             overflow: hidden;
+            padding: 20px;
         }
-       
-        .logo {
-            text-align: center;
+        
+        .display {
+            background-color: #2d3047;
+            border-radius: 10px;
+            padding: 20px;
             margin-bottom: 20px;
-        }
-       
-        .logo img {
-            max-width: 200px;
-            height: auto;
-        }
-       
-        .clock {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-       
-        .time {
-            font-size: 3.2rem;
-            font-weight: 300;
-            letter-spacing: -1px;
-            margin-bottom: 5px;
-            color: #444;
-        }
-       
-        .date {
-            color: #666;
-            font-size: 1rem;
-        }
-       
-        .timer-display {
-            text-align: center;
-            font-size: 1.5rem;
-            margin: 20px 0;
-            padding: 12px;
-            background: #f0f0f0;
-            border-radius: 10px;
-            display: none;
-            color: #444;
-        }
-       
-        .alarm-image {
-            max-width: 150px;
-            height: auto;
-            margin: 20px auto;
-            display: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-       
-        .section {
-            margin-bottom: 25px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-       
-        .section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-       
-        h2 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 15px;
-            color: #555;
-        }
-       
-        .input-group {
+            text-align: right;
+            color: white;
+            min-height: 120px;
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            flex-direction: column;
+            justify-content: space-between;
         }
-       
-        input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: #f9f9f9;
-            transition: all 0.2s ease;
+        
+        .previous-operand {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            min-height: 1.5rem;
+            word-wrap: break-word;
+            word-break: break-all;
         }
-       
-        input:focus {
-            outline: none;
-            border-color: #a0a0a0;
-            background: white;
+        
+        .current-operand {
+            font-size: 2.5rem;
+            font-weight: 500;
+            word-wrap: break-word;
+            word-break: break-all;
         }
-       
+        
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 12px;
+        }
+        
         button {
-            padding: 12px 20px;
             border: none;
             border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 15px 0;
+            font-size: 1.2rem;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
-            font-weight: 500;
-        }
-       
-        .btn-primary {
-            background: #8a8a8a;
             color: white;
         }
-       
-        .btn-primary:hover {
-            background: #7a7a7a;
+        
+        button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-       
-        .btn-danger {
-            background: #a85c5c;
-            color: white;
+        
+        button:active {
+            transform: translateY(0);
         }
-       
-        .btn-danger:hover {
-            background: #984c4c;
-            transform: translateY(-2px);
+        
+        .number {
+            background-color: #3a3e5b;
         }
-       
-        .btn-secondary {
-            background: #a0a0a0;
-            color: white;
+        
+        .number:hover {
+            background-color: #4a5078;
         }
-       
-        .btn-secondary:hover {
-            background: #909090;
-            transform: translateY(-2px);
+        
+        .operation {
+            background-color: #ff9500;
         }
-       
-        .message {
-            text-align: center;
-            margin: 15px 0;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 0.9rem;
+        
+        .operation:hover {
+            background-color: #ffaa33;
         }
-       
-        .message.success {
-            background: #e0f0e0;
-            color: #2d5a2d;
+        
+        .scientific {
+            background-color: #585a7c;
         }
-       
-        .message.error {
-            background: #f8e0e0;
-            color: #8a3a3a;
+        
+        .scientific:hover {
+            background-color: #6c6f9c;
         }
-       
-        .message.info {
-            background: #e0e8f0;
-            color: #3a5a8a;
+        
+        .equals {
+            background-color: #ff2d55;
+            grid-column: span 2;
         }
-       
-        .alarm-list {
-            list-style: none;
+        
+        .equals:hover {
+            background-color: #ff4d6d;
         }
-       
-        .alarm-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+        
+        .clear {
+            background-color: #585a7c;
         }
-       
-        .alarm-item:last-child {
-            border-bottom: none;
+        
+        .clear:hover {
+            background-color: #6c6f9c;
         }
-       
-        .alarm-time {
-            font-weight: 500;
-            color: #444;
+        
+        .zero {
+            grid-column: span 2;
         }
-       
-        .alarm-label {
-            color: #777;
-            font-size: 0.9rem;
+        
+        .memory {
+            background-color: #2d3047;
+            font-size: 1rem;
         }
-       
-        .empty-state {
-            text-align: center;
-            color: #888;
-            padding: 20px 0;
-            font-style: italic;
+        
+        .memory:hover {
+            background-color: #3a3e5b;
         }
-       
-        footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #666;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        
+        .mode-toggle {
+            background-color: #2d3047;
+            font-size: 1rem;
+            margin-top: 15px;
+            width: 100%;
         }
-       
-        .heart {
-            color: #ff4d6d;
-            display: inline-block;
-            animation: heartbeat 1.2s infinite;
-            transform-origin: center;
+        
+        .mode-toggle:hover {
+            background-color: #3a3e5b;
         }
-       
-        @keyframes heartbeat {
-            0% {
-                transform: scale(1);
+        
+        @media (max-width: 480px) {
+            .calculator {
+                width: 100%;
+                padding: 15px;
             }
-            5% {
-                transform: scale(1.1);
+            
+            button {
+                padding: 12px 0;
+                font-size: 1rem;
             }
-            10% {
-                transform: scale(1);
+            
+            .current-operand {
+                font-size: 2rem;
             }
-            15% {
-                transform: scale(1.2);
-            }
-            50% {
-                transform: scale(1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-       
-        .control-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-       
-        .control-buttons button {
-            flex: 1;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <img src="https://i.ibb.co/tMVg8ZMq/Awakinga.png" alt="Awakinga" border="0">
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand"></div>
+            <div class="current-operand">0</div>
         </div>
-       
-        <div class="clock">
-            <div id="clock" class="time">00:00:00</div>
-            <div id="date" class="date">Monday, January 1, 2023</div>
+        <div class="buttons-grid">
+            <button class="clear scientific" data-action="clear">C</button>
+            <button class="clear scientific" data-action="clear-entry">CE</button>
+            <button class="scientific" data-action="backspace">⌫</button>
+            <button class="scientific" data-operation="%">%</button>
+            <button class="scientific" data-operation="1/x">1/x</button>
+            
+            <button class="scientific" data-operation="x²">x²</button>
+            <button class="scientific" data-operation="√">√</button>
+            <button class="scientific" data-operation="x^y">x^y</button>
+            <button class="scientific" data-operation="log">log</button>
+            <button class="scientific" data-operation="ln">ln</button>
+            
+            <button class="scientific" data-operation="sin">sin</button>
+            <button class="scientific" data-operation="cos">cos</button>
+            <button class="scientific" data-operation="tan">tan</button>
+            <button class="scientific" data-operation="π">π</button>
+            <button class="scientific" data-operation="e">e</button>
+            
+            <button class="memory" data-action="mc">MC</button>
+            <button class="memory" data-action="mr">MR</button>
+            <button class="memory" data-action="m-plus">M+</button>
+            <button class="memory" data-action="m-minus">M-</button>
+            <button class="operation" data-operation="÷">÷</button>
+            
+            <button class="number" data-number="7">7</button>
+            <button class="number" data-number="8">8</button>
+            <button class="number" data-number="9">9</button>
+            <button class="operation" data-operation="×">×</button>
+            <button class="scientific" data-operation="10^x">10^x</button>
+            
+            <button class="number" data-number="4">4</button>
+            <button class="number" data-number="5">5</button>
+            <button class="number" data-number="6">6</button>
+            <button class="operation" data-operation="-">-</button>
+            <button class="scientific" data-operation="x!">x!</button>
+            
+            <button class="number" data-number="1">1</button>
+            <button class="number" data-number="2">2</button>
+            <button class="number" data-number="3">3</button>
+            <button class="operation" data-operation="+">+</button>
+            <button class="scientific" data-operation="±">±</button>
+            
+            <button class="number zero" data-number="0">0</button>
+            <button class="number" data-number=".">.</button>
+            <button class="equals" data-action="calculate">=</button>
         </div>
-       
-        <img id="alarmImage" class="alarm-image" src="https://i.ibb.co/GvmfzF47/ARmeen.png" alt="ARmeen">
-       
-        <div id="timerDisplay" class="timer-display">Timer: 00:00</div>
-       
-        <div class="section">
-            <h2>Set Alarm</h2>
-            <div class="input-group">
-                <input type="time" id="alarmTime">
-                <button class="btn-primary" onclick="setAlarm()">Set Alarm</button>
-            </div>
-            <input type="text" id="alarmLabel" placeholder="Alarm label (optional)">
-        </div>
-       
-        <div class="section">
-            <h2>Set Timer</h2>
-            <div class="input-group">
-                <input type="number" id="timerMinutes" min="1" placeholder="Minutes">
-                <button class="btn-primary" onclick="setTimer()">Start Timer</button>
-            </div>
-        </div>
-       
-        <div id="message" class="message"></div>
-       
-        <div class="section">
-            <h2>Active Alarms</h2>
-            <ul id="alarmList" class="alarm-list">
-                <li class="empty-state">No active alarms</li>
-            </ul>
-        </div>
-       
-        <div class="control-buttons">
-            <button id="stopButton" class="btn-danger" onclick="stopAlarm()" style="display: none;">Stop Alarm</button>
-            <button id="stopTimerButton" class="btn-secondary" onclick="stopTimer()" style="display: none;">Stop Timer</button>
-        </div>
+        <button class="mode-toggle" id="mode-toggle">Switch to Basic Mode</button>
     </div>
-   
-    <footer>
-        Made in <span class="heart">💖</span> By Armeen
-    </footer>
 
     <script>
-        // DOM elements
-        const clock = document.getElementById('clock');
-        const dateElement = document.getElementById('date');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const alarmImage = document.getElementById('alarmImage');
-        const stopButton = document.getElementById('stopButton');
-        const stopTimerButton = document.getElementById('stopTimerButton');
-        const message = document.getElementById('message');
-        const alarmList = document.getElementById('alarmList');
-       
-        // State variables
-        let alarms = [];
-        let timerEndTime = null;
-        let timerInterval = null;
-        let isAlarmRinging = false;
-        let audioContext = null;
-        let oscillator = null;
-       
-        // Update clock and date
-        function updateClock() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            clock.textContent = `${hours}:${minutes}:${seconds}`;
-           
-            // Update date
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            dateElement.textContent = now.toLocaleDateString('en-US', options);
-           
-            // Check alarms
-            checkAlarms(now);
-           
-            // Update timer if active
-            updateTimer(now);
-        }
-       
-        // Check if any alarms should trigger
-        function checkAlarms(now) {
-            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-           
-            alarms.forEach((alarm, index) => {
-                if (alarm.time === currentTime && !alarm.triggered) {
-                    triggerAlarm(alarm, index);
-                }
-            });
-        }
-       
-        // Trigger an alarm
-        function triggerAlarm(alarm, index) {
-            isAlarmRinging = true;
-            alarms[index].triggered = true;
-           
-            // Show message
-            showMessage(`Alarm: ${alarm.label || 'Alarm'}`, 'success');
-           
-            // Show image
-            alarmImage.style.display = 'block';
-           
-            // Play sound
-            playAlarmSound();
-           
-            // Update UI
-            stopButton.style.display = 'block';
-           
-            // Remove from active alarms list
-            updateAlarmList();
-        }
-       
-        // Play alarm sound using Web Audio API
-        function playAlarmSound() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-               
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-               
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.5);
-               
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-               
-                oscillator.start();
-               
-                // Stop after 5 seconds if not manually stopped
-                setTimeout(() => {
-                    if (isAlarmRinging) {
-                        stopAlarm();
-                    }
-                }, 5000);
-            } catch (error) {
-                console.error('Error playing sound:', error);
-                // Fallback: open in new tab
-                window.open("https://limewire.com/d/Hzjae#KzNJYARNMK", '_blank');
+        class Calculator {
+            constructor(previousOperandElement, currentOperandElement) {
+                this.previousOperandElement = previousOperandElement;
+                this.currentOperandElement = currentOperandElement;
+                this.clear();
+                this.memory = 0;
+                this.isScientificMode = true;
             }
-        }
-       
-        // Stop alarm sound
-        function stopAlarmSound() {
-            if (oscillator) {
-                oscillator.stop();
-                oscillator = null;
+            
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.shouldResetScreen = false;
             }
-            if (audioContext) {
-                audioContext.close();
-                audioContext = null;
+            
+            clearEntry() {
+                this.currentOperand = '0';
             }
-        }
-       
-        // Update timer display
-        function updateTimer(now) {
-            if (timerEndTime) {
-                const timeLeft = timerEndTime - now;
-               
-                if (timeLeft <= 0) {
-                    // Timer finished
-                    timerEndTime = null;
-                    timerDisplay.style.display = 'none';
-                    stopTimerButton.style.display = 'none';
-                    alarmImage.style.display = 'block';
-                    showMessage('Timer finished!', 'success');
-                    playAlarmSound();
-                    clearInterval(timerInterval);
-                    timerInterval = null;
+            
+            delete() {
+                if (this.currentOperand.length === 1) {
+                    this.currentOperand = '0';
                 } else {
-                    // Update timer display
-                    const timerMinutes = Math.floor(timeLeft / 60000);
-                    const timerSeconds = Math.floor((timeLeft % 60000) / 1000);
-                    timerDisplay.textContent = `Timer: ${String(timerMinutes).padStart(2, '0')}:${String(timerSeconds).padStart(2, '0')}`;
-                    timerDisplay.style.display = 'block';
+                    this.currentOperand = this.currentOperand.slice(0, -1);
+                }
+            }
+            
+            appendNumber(number) {
+                if (this.shouldResetScreen) {
+                    this.currentOperand = '';
+                    this.shouldResetScreen = false;
+                }
+                
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number;
+                } else {
+                    this.currentOperand += number;
+                }
+            }
+            
+            chooseOperation(operation) {
+                if (this.currentOperand === '') return;
+                
+                if (this.previousOperand !== '') {
+                    this.calculate();
+                }
+                
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.shouldResetScreen = true;
+            }
+            
+            calculate() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+                
+                switch (this.operation) {
+                    case '+':
+                        computation = prev + current;
+                        break;
+                    case '-':
+                        computation = prev - current;
+                        break;
+                    case '×':
+                        computation = prev * current;
+                        break;
+                    case '÷':
+                        computation = prev / current;
+                        break;
+                    case 'x^y':
+                        computation = Math.pow(prev, current);
+                        break;
+                    default:
+                        return;
+                }
+                
+                this.currentOperand = computation.toString();
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.shouldResetScreen = true;
+            }
+            
+            scientificOperation(operation) {
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(current)) return;
+                
+                switch (operation) {
+                    case 'x²':
+                        this.currentOperand = (current * current).toString();
+                        break;
+                    case '√':
+                        this.currentOperand = Math.sqrt(current).toString();
+                        break;
+                    case '1/x':
+                        this.currentOperand = (1 / current).toString();
+                        break;
+                    case '±':
+                        this.currentOperand = (-current).toString();
+                        break;
+                    case 'log':
+                        this.currentOperand = Math.log10(current).toString();
+                        break;
+                    case 'ln':
+                        this.currentOperand = Math.log(current).toString();
+                        break;
+                    case '10^x':
+                        this.currentOperand = Math.pow(10, current).toString();
+                        break;
+                    case 'sin':
+                        this.currentOperand = Math.sin(current * Math.PI / 180).toString();
+                        break;
+                    case 'cos':
+                        this.currentOperand = Math.cos(current * Math.PI / 180).toString();
+                        break;
+                    case 'tan':
+                        this.currentOperand = Math.tan(current * Math.PI / 180).toString();
+                        break;
+                    case 'π':
+                        this.currentOperand = Math.PI.toString();
+                        break;
+                    case 'e':
+                        this.currentOperand = Math.E.toString();
+                        break;
+                    case 'x!':
+                        this.currentOperand = this.factorial(current).toString();
+                        break;
+                    case '%':
+                        this.currentOperand = (current / 100).toString();
+                        break;
+                    default:
+                        return;
+                }
+                
+                this.shouldResetScreen = true;
+            }
+            
+            factorial(n) {
+                if (n < 0) return NaN;
+                if (n === 0 || n === 1) return 1;
+                
+                let result = 1;
+                for (let i = 2; i <= n; i++) {
+                    result *= i;
+                }
+                return result;
+            }
+            
+            memoryOperation(action) {
+                const current = parseFloat(this.currentOperand);
+                
+                switch (action) {
+                    case 'mc':
+                        this.memory = 0;
+                        break;
+                    case 'mr':
+                        this.currentOperand = this.memory.toString();
+                        break;
+                    case 'm-plus':
+                        this.memory += current;
+                        break;
+                    case 'm-minus':
+                        this.memory -= current;
+                        break;
+                }
+            }
+            
+            toggleMode() {
+                this.isScientificMode = !this.isScientificMode;
+                return this.isScientificMode;
+            }
+            
+            updateDisplay() {
+                this.currentOperandElement.innerText = this.currentOperand;
+                
+                if (this.operation != null) {
+                    this.previousOperandElement.innerText = 
+                        `${this.previousOperand} ${this.operation}`;
+                } else {
+                    this.previousOperandElement.innerText = '';
                 }
             }
         }
-       
-        // Set a new alarm
-        function setAlarm() {
-            const alarmInput = document.getElementById('alarmTime').value;
-            const alarmLabel = document.getElementById('alarmLabel').value;
-           
-            if (!alarmInput) {
-                showMessage('Please set a valid alarm time.', 'error');
-                return;
-            }
-           
-            // Add to alarms array
-            alarms.push({
-                time: alarmInput,
-                label: alarmLabel || 'Alarm',
-                triggered: false
+        
+        // Initialize calculator
+        const previousOperandElement = document.querySelector('.previous-operand');
+        const currentOperandElement = document.querySelector('.current-operand');
+        const calculator = new Calculator(previousOperandElement, currentOperandElement);
+        
+        // Number buttons
+        document.querySelectorAll('[data-number]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.appendNumber(button.innerText);
+                calculator.updateDisplay();
             });
-           
-            showMessage(`Alarm set for ${alarmInput}`, 'info');
-           
-            // Reset form
-            document.getElementById('alarmTime').value = '';
-            document.getElementById('alarmLabel').value = '';
-           
-            // Update alarm list
-            updateAlarmList();
-        }
-       
-        // Stop the currently ringing alarm
-        function stopAlarm() {
-            isAlarmRinging = false;
-            stopAlarmSound();
-            stopButton.style.display = 'none';
-            alarmImage.style.display = 'none';
-            showMessage('Alarm stopped.', 'info');
-        }
-       
-        // Set a timer
-        function setTimer() {
-            const timerInput = document.getElementById('timerMinutes').value;
-           
-            if (!timerInput || timerInput <= 0) {
-                showMessage('Please enter a valid number of minutes.', 'error');
-                return;
-            }
-           
-            const now = new Date();
-            timerEndTime = new Date(now.getTime() + timerInput * 60 * 1000);
-           
-            showMessage(`Timer set for ${timerInput} minute${timerInput > 1 ? 's' : ''}`, 'info');
-           
-            stopTimerButton.style.display = 'block';
-            alarmImage.style.display = 'none';
-           
-            if (timerInterval) {
-                clearInterval(timerInterval);
-            }
-           
-            timerInterval = setInterval(() => {
-                updateClock();
-            }, 1000);
-           
-            updateClock();
-        }
-       
-        // Stop the timer
-        function stopTimer() {
-            timerEndTime = null;
-            timerDisplay.style.display = 'none';
-            stopTimerButton.style.display = 'none';
-            showMessage('Timer stopped.', 'info');
-           
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-        }
-       
-        // Update the alarm list in the UI
-        function updateAlarmList() {
-            alarmList.innerHTML = '';
-           
-            const activeAlarms = alarms.filter(alarm => !alarm.triggered);
-           
-            if (activeAlarms.length === 0) {
-                alarmList.innerHTML = '<li class="empty-state">No active alarms</li>';
-                return;
-            }
-           
-            activeAlarms.forEach((alarm, index) => {
-                const alarmItem = document.createElement('li');
-                alarmItem.className = 'alarm-item';
-               
-                alarmItem.innerHTML = `
-                    <div>
-                        <div class="alarm-time">${alarm.time}</div>
-                        <div class="alarm-label">${alarm.label}</div>
-                    </div>
-                    <button class="btn-secondary" onclick="deleteAlarm(${alarms.indexOf(alarm)})">Delete</button>
-                `;
-               
-                alarmList.appendChild(alarmItem);
+        });
+        
+        // Operation buttons
+        document.querySelectorAll('[data-operation]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.chooseOperation(button.innerText);
+                calculator.updateDisplay();
             });
-        }
-       
-        // Delete an alarm
-        function deleteAlarm(index) {
-            alarms.splice(index, 1);
-            updateAlarmList();
-            showMessage('Alarm deleted.', 'info');
-        }
-       
-        // Show message
-        function showMessage(text, type) {
-            message.textContent = text;
-            message.className = `message ${type}`;
-           
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                message.textContent = '';
-                message.className = 'message';
-            }, 5000);
-        }
-       
-        // Initialize
-        updateClock();
-        setInterval(updateClock, 1000);
-        updateAlarmList();
+        });
+        
+        // Scientific operation buttons
+        document.querySelectorAll('.scientific[data-operation]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.scientificOperation(button.getAttribute('data-operation'));
+                calculator.updateDisplay();
+            });
+        });
+        
+        // Memory buttons
+        document.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', () => {
+                const action = button.getAttribute('data-action');
+                
+                if (action === 'calculate') {
+                    calculator.calculate();
+                } else if (action === 'clear') {
+                    calculator.clear();
+                } else if (action === 'clear-entry') {
+                    calculator.clearEntry();
+                } else if (action === 'backspace') {
+                    calculator.delete();
+                } else if (['mc', 'mr', 'm-plus', 'm-minus'].includes(action)) {
+                    calculator.memoryOperation(action);
+                }
+                
+                calculator.updateDisplay();
+            });
+        });
+        
+        // Mode toggle
+        const modeToggle = document.getElementById('mode-toggle');
+        modeToggle.addEventListener('click', () => {
+            const isScientific = calculator.toggleMode();
+            const scientificButtons = document.querySelectorAll('.scientific, .memory');
+            
+            if (isScientific) {
+                modeToggle.innerText = 'Switch to Basic Mode';
+                scientificButtons.forEach(button => {
+                    button.style.display = 'block';
+                });
+            } else {
+                modeToggle.innerText = 'Switch to Scientific Mode';
+                scientificButtons.forEach(button => {
+                    button.style.display = 'none';
+                });
+            }
+        });
     </script>
 </body>
 </html>
