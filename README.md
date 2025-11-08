@@ -1,9 +1,9 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Radio Player</title>
+  <title>Modern Radio Player</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -27,7 +27,7 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       display: flex;
       flex-direction: column;
@@ -36,6 +36,7 @@
       min-height: 100vh;
       padding: 20px;
       color: var(--text);
+      transition: background 0.5s ease;
     }
     
     .player {
@@ -45,7 +46,7 @@
       box-shadow: var(--shadow);
       text-align: center;
       width: 100%;
-      max-width: 400px;
+      max-width: 450px;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       position: relative;
       overflow: hidden;
@@ -72,17 +73,27 @@
     }
     
     .logo {
-      max-width: 280px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
       margin: 0 auto 15px;
       display: block;
+      object-fit: cover;
+      border: 3px solid #f0f0f0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .logo:hover {
+      transform: rotate(5deg) scale(1.05);
     }
     
     .station-name {
-      font-size: 1.1rem;
+      font-size: 1.4rem;
       color: var(--text);
       margin: 12px 0;
       height: 24px;
-      font-weight: 500;
+      font-weight: 600;
     }
     
     .station-select-container {
@@ -382,6 +393,44 @@
       color: #ff4081;
     }
     
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: var(--text-light);
+      cursor: pointer;
+      width: auto;
+      height: auto;
+      padding: 5px;
+      box-shadow: none;
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      background: none;
+    }
+    
+    .now-playing {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-top: 8px;
+      height: 20px;
+      font-style: italic;
+    }
+    
+    .station-genre {
+      font-size: 0.8rem;
+      color: var(--primary);
+      background-color: rgba(74, 0, 224, 0.1);
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-top: 5px;
+    }
+    
     @media (max-width: 480px) {
       .player {
         padding: 20px 15px;
@@ -398,7 +447,8 @@
       }
       
       .logo {
-        max-width: 220px;
+        width: 100px;
+        height: 100px;
       }
     }
   </style>
@@ -406,8 +456,10 @@
 <body>
   <div class="player">
     <div class="station-info">
-      <img src="https://i.ibb.co/gMPqyWJS/image.png" alt="Radio Logo" class="logo">
+      <img src="https://via.placeholder.com/120" alt="Radio Logo" class="logo" id="stationLogo">
       <div class="station-name" id="stationName">Loading stations...</div>
+      <div class="station-genre" id="stationGenre">Radio</div>
+      <div class="now-playing" id="nowPlaying"></div>
       
       <div class="station-select-container">
         <label for="stationSelect">Select Station</label>
@@ -418,6 +470,10 @@
       
       <button class="favorite-btn" id="favoriteBtn" title="Add to favorites">
         <i class="far fa-heart"></i>
+      </button>
+      
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <i class="fas fa-moon"></i>
       </button>
     </div>
 
@@ -480,12 +536,16 @@
     const volDisplay = document.getElementById('volDisplay');
     const stationSelect = document.getElementById('stationSelect');
     const stationName = document.getElementById('stationName');
+    const stationLogo = document.getElementById('stationLogo');
+    const stationGenre = document.getElementById('stationGenre');
+    const nowPlaying = document.getElementById('nowPlaying');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
     const frequencyDisplay = document.getElementById('frequencyDisplay');
     const visualizer = document.getElementById('visualizer');
     const favoriteBtn = document.getElementById('favoriteBtn');
     const presetsContainer = document.getElementById('presets');
+    const themeToggle = document.getElementById('themeToggle');
 
     // Create visualizer bars
     for (let i = 0; i < 30; i++) {
@@ -499,18 +559,55 @@
 
     // Fallback hardcoded stations
     const fallbackStations = [
-      { url: "https://eu8.fastcast4u.com/proxy/clyedupq?mp=%2F1", name: "Classic Rock FM", frequency: "98.5" },
-      { url: "https://stream-uk1.radioparadise.com/aac-320", name: "Radio Paradise", frequency: "101.3" },
-      { url: "https://us1.internet-radio.com/proxy/abcd?mp=/stream", name: "Chillout Lounge", frequency: "89.7" },
-      { url: "https://icecast.rtl.fr/rtl-1-44-128", name: "RTL Radio", frequency: "102.5" },
-      { url: "https://stream.radioparadise.com/rock-128", name: "Rock Paradise", frequency: "94.3" },
-      { url: "https://somafm.com/dronezone130.pls", name: "Drone Zone", frequency: "87.9" }
+      { 
+        url: "https://eu8.fastcast4u.com/proxy/clyedupq?mp=%2F1", 
+        name: "Classic Rock FM", 
+        frequency: "98.5",
+        logo: "https://via.placeholder.com/120?text=Rock",
+        genre: "Rock"
+      },
+      { 
+        url: "https://stream-uk1.radioparadise.com/aac-320", 
+        name: "Radio Paradise", 
+        frequency: "101.3",
+        logo: "https://via.placeholder.com/120?text=Paradise",
+        genre: "Eclectic"
+      },
+      { 
+        url: "https://us1.internet-radio.com/proxy/abcd?mp=/stream", 
+        name: "Chillout Lounge", 
+        frequency: "89.7",
+        logo: "https://via.placeholder.com/120?text=Chill",
+        genre: "Ambient"
+      },
+      { 
+        url: "https://icecast.rtl.fr/rtl-1-44-128", 
+        name: "RTL Radio", 
+        frequency: "102.5",
+        logo: "https://via.placeholder.com/120?text=RTL",
+        genre: "Talk"
+      },
+      { 
+        url: "https://stream.radioparadise.com/rock-128", 
+        name: "Rock Paradise", 
+        frequency: "94.3",
+        logo: "https://via.placeholder.com/120?text=Rock+",
+        genre: "Rock"
+      },
+      { 
+        url: "https://somafm.com/dronezone130.pls", 
+        name: "Drone Zone", 
+        frequency: "87.9",
+        logo: "https://via.placeholder.com/120?text=Drone",
+        genre: "Ambient"
+      }
     ];
 
     let stations = [];
     let currentStationIndex = 0;
     let favorites = JSON.parse(localStorage.getItem('radioFavorites')) || [];
     let visualizerInterval;
+    let isDarkMode = false;
 
     // Load stations from API
     async function loadStations() {
@@ -528,7 +625,9 @@
           .map(station => ({
             url: station.url_resolved || station.url,
             name: station.name,
-            frequency: station.countrycode || "--.--"
+            frequency: station.countrycode || "--.--",
+            logo: station.favicon || "https://via.placeholder.com/120?text=Radio",
+            genre: station.tags ? station.tags.split(',')[0] : "Radio"
           }));
 
         if (validStations.length === 0) throw new Error('No valid stations found');
@@ -552,7 +651,7 @@
     // Populate the select dropdown
     function populateSelect(stations) {
       stationSelect.innerHTML = stations.map((station, index) => 
-        `<option value="${index}" data-name="${station.name}" data-frequency="${station.frequency}">
+        `<option value="${index}" data-name="${station.name}" data-frequency="${station.frequency}" data-logo="${station.logo}" data-genre="${station.genre}">
           ${station.name} (${station.frequency} ${station.frequency.length === 5 ? 'FM' : ''})
         </option>`
       ).join('');
@@ -590,6 +689,12 @@
         stationName.textContent = selectedOption.getAttribute('data-name');
         const freq = selectedOption.getAttribute('data-frequency');
         frequencyDisplay.textContent = freq.length === 5 ? `${freq} FM` : freq;
+        
+        // Update station logo
+        stationLogo.src = selectedOption.getAttribute('data-logo');
+        
+        // Update station genre
+        stationGenre.textContent = selectedOption.getAttribute('data-genre');
         
         // Update favorite button state
         const isFavorite = favorites.includes(parseInt(stationSelect.value));
@@ -629,6 +734,36 @@
       updateFavoriteButton(!isCurrentlyFavorite);
     }
 
+    // Toggle dark/light mode
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      const icon = themeToggle.querySelector('i');
+      
+      if (isDarkMode) {
+        document.documentElement.style.setProperty('--primary', '#8e2de2');
+        document.documentElement.style.setProperty('--primary-dark', '#6a11cb');
+        document.documentElement.style.setProperty('--secondary', '#4a00e0');
+        document.documentElement.style.setProperty('--accent', '#00c6ff');
+        document.documentElement.style.setProperty('--text', '#f8f9fa');
+        document.documentElement.style.setProperty('--text-light', '#adb5bd');
+        document.documentElement.style.setProperty('--background', '#121212');
+        document.documentElement.style.setProperty('--card', '#1e1e1e');
+        document.body.style.background = 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)';
+        icon.className = 'fas fa-sun';
+      } else {
+        document.documentElement.style.setProperty('--primary', '#4a00e0');
+        document.documentElement.style.setProperty('--primary-dark', '#3a00b0');
+        document.documentElement.style.setProperty('--secondary', '#8e2de2');
+        document.documentElement.style.setProperty('--accent', '#00c6ff');
+        document.documentElement.style.setProperty('--text', '#333');
+        document.documentElement.style.setProperty('--text-light', '#666');
+        document.documentElement.style.setProperty('--background', '#f8f9fa');
+        document.documentElement.style.setProperty('--card', '#ffffff');
+        document.body.style.background = 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)';
+        icon.className = 'fas fa-moon';
+      }
+    }
+
     // Volume control
     volumeSlider.addEventListener('input', (e) => {
       audio.volume = e.target.value;
@@ -656,6 +791,9 @@
         
         // Start visualizer animation
         startVisualizer();
+        
+        // Update now playing text
+        updateNowPlaying();
       }).catch((error) => {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         playBtn.disabled = false;
@@ -690,6 +828,9 @@
       
       // Stop visualizer
       stopVisualizer();
+      
+      // Clear now playing
+      nowPlaying.textContent = '';
     });
 
     // Previous station button
@@ -723,6 +864,9 @@
           playBtn.innerHTML = '<i class="fas fa-play"></i>';
           status.textContent = `Playing: ${stations[currentStationIndex].name}`;
           status.className = 'status playing';
+          
+          // Update now playing text
+          updateNowPlaying();
         }).catch((error) => {
           playBtn.innerHTML = '<i class="fas fa-play"></i>';
           playBtn.disabled = false;
@@ -738,6 +882,9 @@
 
     // Favorite button
     favoriteBtn.addEventListener('click', toggleFavorite);
+
+    // Theme toggle button
+    themeToggle.addEventListener('click', toggleTheme);
 
     // Update status and progress
     audio.addEventListener('loadstart', () => {
@@ -781,6 +928,7 @@
       pauseBtn.disabled = true;
       stopBtn.disabled = true;
       stopVisualizer();
+      nowPlaying.textContent = '';
     });
 
     // Visualizer functions
@@ -806,6 +954,23 @@
       });
     }
 
+    // Update now playing text (simulated)
+    function updateNowPlaying() {
+      const stationsWithSongs = [
+        "Now Playing: Sweet Child O' Mine - Guns N' Roses",
+        "Now Playing: Bohemian Rhapsody - Queen",
+        "Now Playing: Hotel California - Eagles",
+        "Now Playing: Stairway to Heaven - Led Zeppelin",
+        "Now Playing: Imagine - John Lennon",
+        "Now Playing: Smells Like Teen Spirit - Nirvana",
+        "Now Playing: Billie Jean - Michael Jackson",
+        "Now Playing: Like a Rolling Stone - Bob Dylan"
+      ];
+      
+      const randomSong = stationsWithSongs[Math.floor(Math.random() * stationsWithSongs.length)];
+      nowPlaying.textContent = randomSong;
+    }
+
     // Initialize on load
     window.addEventListener('load', loadStations);
 
@@ -822,6 +987,9 @@
         prevBtn.click();
       } else if (e.code === 'ArrowRight') {
         nextBtn.click();
+      } else if (e.code === 'KeyD' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        themeToggle.click();
       }
     });
   </script>
