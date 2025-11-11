@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -201,7 +201,7 @@
   </div>
 
   <div class="station-info">
-    <img src="https://i.ibb.co/M5jBWByV/image.png" alt="Radio Logo">
+    <img src=" https://i.ibb.co/M5jBWByV/image.png " alt="Radio Logo">
     <div class="station-name" id="stationName">Loading stations...</div>
     <select id="stationSelect"></select>
   </div>
