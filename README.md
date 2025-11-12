@@ -1,332 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Retro Radio Player</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  /* ===== Retro Windows 98 Theme ===== */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "MS Sans Serif", "Tahoma", sans-serif;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro QR Code Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    /* === Retro Theme Colors === */
+    :root {
+      --bg: #f4f1e9;
+      --panel: #fffaf0;
+      --border: #b8b4a8;
+      --text: #222;
+      --accent: #2c2c2c;
+      --button: #e0dccc;
+      --button-hover: #cfcab8;
+      --success: #1a8917;
+      --error: #b00020;
+    }
 
-  body {
-    background: #c0c0c0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .player {
-    background: #d4d0c8;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    width: 380px;
-    padding: 12px;
-    box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-  }
+    body {
+      background: var(--bg);
+      font-family: "Courier New", monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      color: var(--text);
+      padding: 20px;
+    }
 
-  .title-bar {
-    background: linear-gradient(to right, #000080, #0000a0);
-    color: white;
-    font-weight: bold;
-    padding: 3px 8px;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+    h1 {
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: var(--accent);
+      color: #fefefe;
+      padding: 10px 20px;
+      border: 2px solid var(--border);
+      box-shadow: 2px 2px 0 #000;
+    }
 
-  .title-bar .controls {
-    display: flex;
-    gap: 4px;
-  }
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: var(--panel);
+      border: 3px solid var(--border);
+      box-shadow: 6px 6px 0 #000;
+      margin-top: 30px;
+      padding: 25px;
+      text-align: center;
+    }
 
-  .title-bar button {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #fff;
-    background: #c0c0c0;
-    box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-    cursor: pointer;
-  }
+    .upload-box {
+      border: 2px dashed var(--border);
+      padding: 30px;
+      margin-bottom: 15px;
+      background: #fffef8;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-  .station-info {
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    background: #d4d0c8;
-    padding: 10px;
-    margin-top: 8px;
-    text-align: center;
-  }
+    .upload-box:hover {
+      background: #f5f2e9;
+    }
 
-  .station-info img {
-    width: 220px;
-    height: auto;
-    margin-bottom: 6px;
-    border: 1px solid #808080;
-  }
+    .upload-box.active {
+      background: #ede9da;
+      border-color: #000;
+    }
 
-  .station-name {
-    font-size: 13px;
-    background: #fff;
-    padding: 4px;
-    border: 1px solid #808080;
-    margin-bottom: 6px;
-  }
+    .upload-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
 
-  select {
-    width: 100%;
-    font-size: 13px;
-    padding: 3px;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    background: #fff;
-    color: black;
-  }
+    .upload-text {
+      font-size: 1rem;
+    }
 
-  button {
-    background: #d4d0c8;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    cursor: pointer;
-    font-size: 13px;
-    padding: 5px 10px;
-  }
+    input[type="file"] {
+      display: none;
+    }
 
-  button:active {
-    border: 2px solid #fff;
-    border-top-color: #808080;
-    border-left-color: #808080;
-  }
+    .file-info {
+      font-size: 0.9rem;
+      color: var(--accent);
+      margin-top: 8px;
+    }
 
-  .controls-panel {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 8px;
-  }
+    .image-preview {
+      margin: 15px auto;
+      max-width: 200px;
+      border: 2px solid var(--border);
+      box-shadow: 2px 2px 0 #000;
+      display: none;
+    }
 
-  .visualizer {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    height: 30px;
-    margin: 8px 0;
-    gap: 2px;
-  }
+    button {
+      background: var(--button);
+      border: 2px solid var(--border);
+      box-shadow: 2px 2px 0 #000;
+      color: var(--text);
+      font-family: inherit;
+      font-weight: bold;
+      padding: 10px 20px;
+      margin: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-  .bar {
-    width: 4px;
-    background: #000080;
-    transition: height 0.15s;
-  }
+    button:hover {
+      background: var(--button-hover);
+    }
 
-  .progress-container {
-    height: 12px;
-    background: #c0c0c0;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    margin: 8px 0;
-  }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-  .progress-bar {
-    height: 100%;
-    width: 0%;
-    background: #000080;
-  }
+    .loading {
+      display: none;
+      margin-top: 15px;
+      font-size: 0.9rem;
+    }
 
-  .volume-control {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
+    .message {
+      display: none;
+      margin: 15px 0;
+      padding: 10px;
+      border: 2px solid var(--border);
+      box-shadow: 2px 2px 0 #000;
+      font-weight: bold;
+    }
 
-  input[type="range"] {
-    flex: 1;
-    -webkit-appearance: none;
-    height: 6px;
-    background: #fff;
-    border: 1px solid #808080;
-  }
+    .success {
+      background: #e5f7e2;
+      color: var(--success);
+    }
 
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 10px;
-    height: 16px;
-    background: #c0c0c0;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    cursor: pointer;
-  }
+    .error {
+      background: #f9e0e0;
+      color: var(--error);
+    }
 
-  .status {
-    background: #fff;
-    border: 2px solid #808080;
-    border-top-color: #fff;
-    border-left-color: #fff;
-    padding: 4px;
-    font-size: 12px;
-    margin-top: 8px;
-  }
+    #qrContainer {
+      margin-top: 25px;
+      display: none;
+    }
 
-  footer {
-    text-align: center;
-    font-size: 12px;
-    margin-top: 8px;
-    color: #000;
-  }
-</style>
+    .qr-code {
+      border: 4px solid var(--border);
+      background: #fff;
+      box-shadow: 4px 4px 0 #000;
+      margin-bottom: 15px;
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      border-top: 2px solid var(--border);
+      padding-top: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <h1>QR Code Generator</h1>
 
-<div class="player">
-  <div class="title-bar">
-    <span>🎙️ Retro Radio Player</span>
-    <div class="controls">
-      <button title="Minimize"></button>
-      <button title="Maximize"></button>
-      <button title="Close"></button>
+  <div class="container">
+    <label class="upload-box" id="uploadBox">
+      <div class="upload-icon">𓂃🖊</div>
+      <div class="upload-text">Click or Drag & Drop Image</div>
+      <div class="file-info" id="fileInfo"></div>
+      <input type="file" id="imageInput" accept="image/*" />
+    </label>
+
+    <img id="imagePreview" class="image-preview" alt="Preview" />
+
+    <div class="message" id="message"></div>
+
+    <button id="generateBtn" onclick="uploadAndGenerateQR()">Generate QR</button>
+
+    <div class="loading" id="loading">Uploading... Please wait ⏳</div>
+
+    <div id="qrContainer">
+      <img id="qrCode" class="qr-code" alt="QR Code" />
+      <a id="downloadLink" download="qr-code.png">
+        <button>⬇ Download QR</button>
+      </a>
     </div>
   </div>
 
-  <div class="station-info">
-    <img src=" https://i.ibb.co/M5jBWByV/image.png " alt="Radio Logo">
-    <div class="station-name" id="stationName">Loading stations...</div>
-    <select id="stationSelect"></select>
+  <div class="footer">
+    Made with ❤️ By Armeen
   </div>
 
-  <div class="controls-panel">
-    <button id="prevBtn"><i class="fas fa-backward"></i></button>
-    <button id="playBtn"><i class="fas fa-play"></i></button>
-    <button id="pauseBtn" disabled><i class="fas fa-pause"></i></button>
-    <button id="stopBtn" disabled><i class="fas fa-stop"></i></button>
-    <button id="nextBtn"><i class="fas fa-forward"></i></button>
-  </div>
+  <script>
+    const imgbbAPIKey = "1cf8feb97ba0aa50a1ee75cef54488ec";
+    const uploadBox = document.getElementById("uploadBox");
+    const fileInput = document.getElementById("imageInput");
+    const fileInfo = document.getElementById("fileInfo");
+    const imagePreview = document.getElementById("imagePreview");
+    const generateBtn = document.getElementById("generateBtn");
+    const qrContainer = document.getElementById("qrContainer");
+    const qrCode = document.getElementById("qrCode");
+    const downloadLink = document.getElementById("downloadLink");
+    const loading = document.getElementById("loading");
+    const message = document.getElementById("message");
 
-  <div class="visualizer" id="visualizer"></div>
-
-  <div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-
-  <div class="volume-control">
-    <span><i class="fas fa-volume-up"></i></span>
-    <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
-  </div>
-
-  <div class="status" id="status">Ready to play...</div>
-
-  <footer>Made with ❤️ by Armeen</footer>
-</div>
-
-<script>
-const audio = new Audio();
-const playBtn = document.getElementById('playBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const stopBtn = document.getElementById('stopBtn');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const stationSelect = document.getElementById('stationSelect');
-const stationName = document.getElementById('stationName');
-const progressBar = document.getElementById('progressBar');
-const visualizer = document.getElementById('visualizer');
-const volumeSlider = document.getElementById('volume');
-const status = document.getElementById('status');
-
-const stations = [
-  { url: "https://eu8.fastcast4u.com/proxy/clyedupq?mp=%2F1", name: "Classic Rock FM" },
-  { url: "https://stream-uk1.radioparadise.com/aac-320", name: "Radio Paradise" },
-  { url: "https://us1.internet-radio.com/proxy/abcd?mp=/stream", name: "Chillout Lounge" },
-  { url: "https://icecast.rtl.fr/rtl-1-44-128", name: "RTL Radio" }
-];
-
-stations.forEach((s, i) => {
-  const opt = document.createElement("option");
-  opt.value = i;
-  opt.textContent = s.name;
-  stationSelect.appendChild(opt);
-});
-
-let currentStation = 0;
-let visualizerInterval;
-
-for (let i = 0; i < 25; i++) {
-  const bar = document.createElement('div');
-  bar.className = 'bar';
-  visualizer.appendChild(bar);
-}
-const bars = document.querySelectorAll('.bar');
-
-function startVisualizer() {
-  stopVisualizer();
-  visualizerInterval = setInterval(() => {
-    bars.forEach(bar => {
-      bar.style.height = Math.random() * 30 + 2 + "px";
+    // Drag & Drop
+    uploadBox.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadBox.classList.add("active");
     });
-  }, 100);
-}
 
-function stopVisualizer() {
-  clearInterval(visualizerInterval);
-  bars.forEach(bar => bar.style.height = "3px");
-}
+    uploadBox.addEventListener("dragleave", () => {
+      uploadBox.classList.remove("active");
+    });
 
-playBtn.onclick = () => {
-  audio.src = stations[stationSelect.value].url;
-  audio.play().then(() => {
-    status.textContent = "Playing: " + stations[stationSelect.value].name;
-    playBtn.disabled = true;
-    pauseBtn.disabled = false;
-    stopBtn.disabled = false;
-    startVisualizer();
-  });
-};
+    uploadBox.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadBox.classList.remove("active");
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        handleFileSelection();
+      }
+    });
 
-pauseBtn.onclick = () => {
-  audio.pause();
-  status.textContent = "Paused";
-  playBtn.disabled = false;
-  pauseBtn.disabled = true;
-  stopVisualizer();
-};
+    fileInput.addEventListener("change", handleFileSelection);
 
-stopBtn.onclick = () => {
-  audio.pause();
-  audio.src = "";
-  playBtn.disabled = false;
-  pauseBtn.disabled = true;
-  stopBtn.disabled = true;
-  status.textContent = "Stopped";
-  stopVisualizer();
-};
+    function handleFileSelection() {
+      const file = fileInput.files[0];
+      if (!file) return;
 
-prevBtn.onclick = () => {
-  currentStation = (currentStation - 1 + stations.length) % stations.length;
-  stationSelect.value = currentStation;
-  playBtn.click();
-};
+      if (file.size > 5 * 1024 * 1024) {
+        showMessage("❌ File exceeds 5MB", "error");
+        resetFileInput();
+        return;
+      }
 
-nextBtn.onclick = () => {
-  currentStation = (currentStation + 1) % stations.length;
-  stationSelect.value = currentStation;
-  playBtn.click();
-};
+      if (!file.type.match("image.*")) {
+        showMessage("❌ Only image files allowed", "error");
+        resetFileInput();
+        return;
+      }
 
-volumeSlider.oninput = e => {
-  audio.volume = e.target.value;
-};
-</script>
+      fileInfo.textContent = `📄 ${file.name}`;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+      hideMessage();
+    }
 
+    function resetFileInput() {
+      fileInput.value = "";
+      fileInfo.textContent = "";
+      imagePreview.style.display = "none";
+    }
+
+    async function uploadAndGenerateQR() {
+      const file = fileInput.files[0];
+      if (!file) {
+        showMessage("⚠️ Select an image first!", "error");
+        return;
+      }
+
+      loading.style.display = "block";
+      generateBtn.disabled = true;
+      hideMessage();
+
+      try {
+        const base64 = await fileToBase64(file);
+        const formData = new FormData();
+        formData.append("key", imgbbAPIKey);
+        formData.append("image", base64.split(",")[1]);
+
+        const response = await fetch("https://api.imgbb.com/1/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const imageUrl = data.data.url;
+
+          QRCode.toDataURL(
+            imageUrl,
+            { width: 200, margin: 1, color: { dark: "#000", light: "#fff" } },
+            (err, qrUrl) => {
+              if (err) {
+                showMessage("QR generation failed", "error");
+                return;
+              }
+              qrCode.src = qrUrl;
+              downloadLink.href = qrUrl;
+              qrContainer.style.display = "block";
+              showMessage("✅ QR Code Ready!", "success");
+            }
+          );
+        } else {
+          throw new Error("Upload failed");
+        }
+      } catch (err) {
+        showMessage("❌ Upload Error", "error");
+      } finally {
+        loading.style.display = "none";
+        generateBtn.disabled = false;
+      }
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = "block";
+    }
+
+    function hideMessage() {
+      message.style.display = "none";
+    }
+  </script>
 </body>
 </html>
